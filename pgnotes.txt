@@ -1,0 +1,85 @@
+/*
+Dealers Choice using a database and node postgres this time, instead of html files or having data within the server.js file itself
+
+1. Postgres is a relational database management system (dbms).
+2. Postgres is a server that listens for client queries to the actual database.
+3. Postgres is a messaging protocol.
+
+How do we communicate with Postgres from our javascript application? Node-postgres (aka "pg")!!!!
+
+Node-postgres (pg) is a database driver which implements the postgres protocol from INSIDE of Node. 
+Nost-postgres (pg) SENDS QUERIES to Postgres and then receive the responses back, and parse it into an array of objects of data, not a table.
+
+We use the syntax: client.query(), which returns a PROMISE, therefore we have to use the async/awat syntax,
+because Node-postgres talks asynchronously.
+
+Why is the code asynchronous? Because we will be querying an entity (db) that is outside of our application 
+and it could be that we have a query that is invalid, etc. but we wouldnt know until we run it. There could also be issues 
+with the client's request. We don't these potential issues to tie up our code or slow down/halt our operation. 
+
+We'll also use try/catch to account for possible errors. 
+*/
+
+/*
+We need to do 4 things to get up and running:
+1. We need to create our database (in other file). Rather than typing individual rows of data from the terminal, we can create a sql file in which we set everything up
+    (DROP TABLE IS EXISTS< CREATE TABLE< INTO INTO...) 
+2. Then seed that file into our database. 
+
+db name: familyInfo
+table name: family
+
+3. Then we need to create another main file that we use to require and create our client and connect our database to postgres, etc. (i used server.js oops)
+4. Lastly, we create our routes file (what would be the server.js but i made a mistake in naming) and export the client file to our routes file to set up app.get/app.listen etc.
+*/
+
+/*
+1. npm init -y
+2. Must install node-postgres: npm install pg --save
+3. Install express: npm install express
+4. Install nodemon: npm install nodemon
+*/
+
+// require pg like we do all other packages
+
+const pg = require("pg"); 
+
+// 1. create a postgresURL variable (not mandatory but will be easier to read): 
+// syntax: 'postgres://localhost/dbName'
+
+const postgresURL = 'postgres://localhost/familyInfo';
+
+// 2. now we need to create a new instance of a node-postgres (pg) client:
+const client = new pg.Client(postgresURL); // could also just pass in line 49 itself w/o variable 
+
+/* 
+3. Define an asynchronous connector function that connects the new pg client to the db:
+NOTE: This client.connect is an asynchronous call (most pg methods are 99.5% of the time) 
+which means that we need to use async/await. Anytime you are querying to your database, it is asynchronous. 
+*/
+
+//const port = process.env.PORT || 3000;
+
+// const connector = async () => {
+//     try {
+//        await client.connect();
+//        console.log('Successfully connected!')
+//        // let's do our first query using client.query, always using await
+//        const data = await client.query(`SELECT * FROM family;`) // we can use SQL directly in the server file instead of writing psql in the terminal!
+//        console.log(data.rows); 
+//        //app.listen(port, () => console.log(`listening on port ${port}`))
+//        /* NOTE:  console.logging "data" shows a lot of information that we dont really need. but the actual table data that we want
+//         is held in a "rows" array that you'll see logged below. thats why we console.log "data.rows" to access the actual table. */
+//     }
+//     catch (error) {
+//         console.log(error);
+//         // If there is an error, we need to close the connection
+//         await client.end();
+//     }
+// }
+
+// // 4. Then run your connector function to set it up.
+// connector();
+
+// NOW! Export this client using module.exports, and then import it into the routes file.
+module.exports = { client }
